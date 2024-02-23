@@ -48,7 +48,27 @@ ul {
 .remove {
 	width: 50px;
 	height: 20px;
-}`, "",{"version":3,"sources":["webpack://./src/style.css"],"names":[],"mappings":"AAAA;CACC,WAAW;CACX,YAAY;CACZ,YAAY;CACZ,mBAAmB;AACpB;;AAEA;CACC,qBAAqB;CACrB,UAAU;AACX;;AAEA;CACC,qBAAqB;CACrB,kBAAkB;CAClB,mBAAmB;AACpB;;AAEA;CACC,UAAU;CACV,YAAY;CACZ,mBAAmB;AACpB;;AAEA;CACC,WAAW;CACX,YAAY;AACb","sourcesContent":["#sup {\r\n\twidth: 50px;\r\n\theight: 20px;\r\n\tmargin: 10px;\r\n\tborder-radius: 10px;\r\n}\r\n\r\nul {\r\n\tlist-style-type: none;\r\n\twidth: 90%;\r\n}\r\n\r\n#heading {\r\n\tborder: 5px solid red;\r\n\ttext-align: center;\r\n\tborder-radius: 10px;\r\n}\r\n\r\n#input {\r\n\twidth: 80%;\r\n\theight: 35px;\r\n\tborder-radius: 10px;\r\n}\r\n\r\n.remove {\r\n\twidth: 50px;\r\n\theight: 20px;\r\n}"],"sourceRoot":""}]);
+}
+
+.remove:hover {
+	display: inline-block;
+	background-color: blue;
+}
+
+.item {
+	width: 60%;
+	margin: 10px;
+	padding: 20px;
+}
+
+.check {
+	padding: 50px;
+	margin: 10px;
+}
+
+.taskName {
+	margin: 10px;
+}`, "",{"version":3,"sources":["webpack://./src/style.css"],"names":[],"mappings":"AAAA;CACC,WAAW;CACX,YAAY;CACZ,YAAY;CACZ,mBAAmB;AACpB;;AAEA;CACC,qBAAqB;CACrB,UAAU;AACX;;AAEA;CACC,qBAAqB;CACrB,kBAAkB;CAClB,mBAAmB;AACpB;;AAEA;CACC,UAAU;CACV,YAAY;CACZ,mBAAmB;AACpB;;AAEA;CACC,WAAW;CACX,YAAY;AACb;;AAEA;CACC,qBAAqB;CACrB,sBAAsB;AACvB;;AAEA;CACC,UAAU;CACV,YAAY;CACZ,aAAa;AACd;;AAEA;CACC,aAAa;CACb,YAAY;AACb;;AAEA;CACC,YAAY;AACb","sourcesContent":["#sup {\r\n\twidth: 50px;\r\n\theight: 20px;\r\n\tmargin: 10px;\r\n\tborder-radius: 10px;\r\n}\r\n\r\nul {\r\n\tlist-style-type: none;\r\n\twidth: 90%;\r\n}\r\n\r\n#heading {\r\n\tborder: 5px solid red;\r\n\ttext-align: center;\r\n\tborder-radius: 10px;\r\n}\r\n\r\n#input {\r\n\twidth: 80%;\r\n\theight: 35px;\r\n\tborder-radius: 10px;\r\n}\r\n\r\n.remove {\r\n\twidth: 50px;\r\n\theight: 20px;\r\n}\r\n\r\n.remove:hover {\r\n\tdisplay: inline-block;\r\n\tbackground-color: blue;\r\n}\r\n\r\n.item {\r\n\twidth: 60%;\r\n\tmargin: 10px;\r\n\tpadding: 20px;\r\n}\r\n\r\n.check {\r\n\tpadding: 50px;\r\n\tmargin: 10px;\r\n}\r\n\r\n.taskName {\r\n\tmargin: 10px;\r\n}"],"sourceRoot":""}]);
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
@@ -603,6 +623,29 @@ li.id = '1';
 ul.appendChild(li);
 document.body.appendChild(h1);
 document.body.appendChild(ul);
+document.addEventListener('DOMContentLoaded', function (event) {
+    var tasks = loadTasks();
+    var rembutton = document.getElementsByClassName("remove");
+    tasks.forEach(function (task) {
+        var li = addListItem(task);
+        li.dataset.taskName = task.name;
+        ul.appendChild(li);
+    });
+    saveTasks(tasks);
+    for (var i = 0; i < rembutton.length; i++) {
+        var button = rembutton[i];
+        button.addEventListener('click', function (event) {
+            var target = event.target;
+            var li = target.closest("li");
+            if (li) {
+                var taskName = li.dataset.taskName;
+                if (taskName) {
+                    removeTask(li, taskName);
+                }
+            }
+        });
+    }
+});
 form.addEventListener('submit', function (event) {
     event.preventDefault();
     var newTask = {
@@ -611,11 +654,8 @@ form.addEventListener('submit', function (event) {
         createdAt: new Date(),
     };
     tasks.push(newTask);
-    tasks.forEach(function (task) {
-        var li = addListItem(task);
-        li.dataset.taskName = task.name;
-        ul.appendChild(li);
-    });
+    var li = addListItem(newTask);
+    ul.append(li);
     saveTasks(tasks);
 });
 function addListItem(task) {
@@ -624,6 +664,10 @@ function addListItem(task) {
     var label = document.createElement('label');
     var div = document.createElement('div');
     var rem = document.createElement('button');
+    var edit = document.createElement('button');
+    edit.classList.add('editTask');
+    edit.innerHTML = "edit";
+    edit.id = "try";
     rem.classList.add('remove');
     rem.innerHTML = "delete";
     count++;
@@ -636,21 +680,56 @@ function addListItem(task) {
     checkbox.addEventListener('change', function () {
         task.completed = checkbox.checked;
     });
-    console.log(task);
     label.append(checkbox, task.name);
     li.append(label, div);
-    li.append(rem);
-    rem.addEventListener('click', function () {
-        tasks = removeTask(li, task.name);
-    });
-    tasks.push(task);
+    li.append(rem, edit);
+    li.classList.add("item");
+    checkbox.classList.add("check");
+    label.classList.add("taskName");
+    div.classList.add("info");
+    input.value = '';
+    input.focus();
     return li;
 }
+ul.addEventListener('click', function (event) {
+    var target = event.target;
+    if (target && target.matches('button.remove')) {
+        var li_1 = target.closest('li');
+        if (li_1) {
+            console.log("am i  here?");
+            var taskName = li_1.dataset.taskName;
+            if (taskName) {
+                removeTask(li_1, taskName);
+            }
+        }
+    }
+    else if (target && target.matches('button.editTask')) {
+        console.log("i am here");
+        var li_2 = target.closest('li');
+        if (li_2) {
+            var label = document.getElementById('try');
+            var taskName = li_2.dataset.taskName;
+            if (taskName && label) {
+                console.log("wow");
+                editTask(li_2, label, taskName);
+            }
+        }
+        else {
+            console.log("label not found");
+        }
+    }
+});
 function removeTask(li, name) {
-    tasks.filter(function (task) { return task.name !== name; });
-    saveTasks(tasks);
+    var tasks1 = tasks.filter(function (task) { return task.name !== name; });
+    saveTasks(tasks1);
     li.remove();
-    return tasks;
+}
+function editTaskName(name, prev) {
+    var index = tasks.find(function (task) { return task.name === prev; });
+    if (index) {
+        index.name = name;
+    }
+    saveTasks(tasks);
 }
 function hide(div) {
     setTimeout(function () {
@@ -663,6 +742,17 @@ function saveTasks(tasks) {
 function loadTasks() {
     var taskstring = localStorage.getItem("tasks");
     return taskstring ? JSON.parse(taskstring) : [];
+}
+function editTask(li, label, name) {
+    console.log("i am here so");
+    input.value = '';
+    input.focus();
+    input.placeholder = "Enter the name the task should have";
+    var val = input.value;
+    if (val) {
+        label.innerHTML = val;
+        editTaskName(val, name);
+    }
 }
 
 })();
