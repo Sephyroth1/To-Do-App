@@ -1,4 +1,3 @@
-import { sumBy } from 'lodash';
 import './style.css';
 
 type Task = {
@@ -14,6 +13,7 @@ const li = document.createElement('li');
 const form = document.createElement('form');
 const input = document.createElement('input');
 const submit = document.createElement('button');
+const div = document.createElement('div');
 var count = 1;
 h1.textContent = "TO-DO APP";
 h1.id = "heading";
@@ -41,15 +41,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
 		ul.appendChild(li);
 	})
 	saveTasks(tasks);
-	for(let i = 0; i < rembutton.length; i++){
+	for (let i = 0; i < rembutton.length; i++) {
 		const button = rembutton[i];
-		button.addEventListener('click', function(event){
+		button.addEventListener('click', function (event) {
 			const target = event.target as HTMLElement;
 			const li = target.closest("li");
-			if(li){
+			if (li) {
 				console.log("hello");
 				const taskName = li.dataset.taskName;
-				if(taskName){
+				if (taskName) {
 					console.log("buttons of remove");
 					removeTask(li, taskName);
 				}
@@ -58,19 +58,19 @@ document.addEventListener('DOMContentLoaded', (event) => {
 	}
 });
 
-form.addEventListener('submit', function(event) {
-  event.preventDefault(); 
+form.addEventListener('submit', function (event) {
+	event.preventDefault(); 
   
-  const newTask: Task = {
-    name: input.value,
-    completed: false,
-    createdAt: new Date(),
-  };
-  tasks.push(newTask);
-  const li = addListItem(newTask);
-  console.log(newTask.name);
-  ul.append(li);
-  saveTasks(tasks);
+	const newTask: Task = {
+		name: input.value,
+		completed: false,
+		createdAt: new Date(),
+	};
+	tasks.push(newTask);
+	const li = addListItem(newTask);
+	console.log(newTask.name);
+	ul.append(li);
+	saveTasks(tasks);
 });
 
 function addListItem(task: Task): HTMLLIElement {
@@ -80,6 +80,10 @@ function addListItem(task: Task): HTMLLIElement {
 	var div = document.createElement('div');
 	const rem = document.createElement('button');
 	const edit = document.createElement('button');
+	const lab = document.createElement('label');
+	checkbox.id = "check1";
+	lab.classList.add("taskName");
+	lab.setAttribute('for', 'check1');
 	li.dataset.taskName = task.name;
 	edit.classList.add('editTask');
 	edit.innerHTML = "edit";
@@ -96,7 +100,7 @@ function addListItem(task: Task): HTMLLIElement {
 	checkbox.addEventListener('change', () => {
 		task.completed = checkbox.checked;
 	})
-	label.append(checkbox, task.name);
+	label.append(checkbox, task.name, lab);
 	li.append(label, div);
 	li.append(rem, edit);
 	li.classList.add("item")
@@ -108,54 +112,50 @@ function addListItem(task: Task): HTMLLIElement {
 	return li;
 }
 
- ul.addEventListener('click', function(event){
- 	const target = event.target as HTMLElement;
- 	if(target && target.matches('button.remove')){
- 		const li = target.closest('li');
- 		if(li){
- 			console.log("am i  here?");
- 			const taskName = li.dataset.taskName;
- 			console.log(taskName);
- 			if(taskName){
- 				console.log("i am herea;sdlkfja")
- 				removeTask(li, taskName);
- 			}
- 			else {
- 				console.log("Task title not found");
- 			}
- 		}
- }
- 	else if(target && target.matches('button.editTask')){
- 		console.log("i am here");
- 		const li = target.closest('li');
- 		if(li){
+ul.addEventListener('click', function (event) {
+	const target = event.target as HTMLElement;
+	if (target && target.matches('button.remove')) {
+		const li = target.closest('li');
+		if (li) {
+			console.log("am i  here?");
+			const taskName = li.dataset.taskName;
+			console.log(taskName);
+			if (taskName) {
+				console.log("i am herea;sdlkfja")
+				removeTask(li, taskName);
+			}
+			else {
+				console.log("Task title not found");
+			}
+		}
+	}
+	else if (target && target.matches('button.editTask')) {
+		console.log("i am here");
+		const li = target.closest('li');
+		if (li) {
 
- 			const label = document.getElementById('try') as HTMLLabelElement;
- 			const taskName = li.dataset.taskName;
- 			if(taskName && label){
- 				console.log("wow");
- 				editTask(li, label, taskName);
- 			}
- 		}
- 		else {
- 			console.log("label not found");
- 		}
- 	}
- });
+			const label = document.getElementById('try') as HTMLLabelElement;
+			const taskName = li.dataset.taskName;
+			if (taskName && label) {
+				console.log("wow");
+				editTask(li, label, taskName);
+			}
+		}
+		else {
+			console.log("label not found");
+		}
+	}
+});
 
- function labelChange(label: HTMLLabelElement, name: string): void{
- 		label.innerHTML = name;
- }
-
- function removeTask(li: HTMLLIElement, name: string): void {
+function removeTask(li: HTMLLIElement, name: string): void {
 	const tasks1: Task[] = tasks.filter(task => task.name !== name);
 	saveTasks(tasks1);
 	li.remove();
 }
 
-function editTaskName(name: string, prev: string){
+function editTaskName(name: string, prev: string) {
 	const index = tasks.find(task => task.name === prev);
-	if(index){index.name = name;}
+	if (index) { index.name = name; }
 	saveTasks(tasks);
 }
 
@@ -171,21 +171,21 @@ function saveTasks(tasks: Task[]): void {
 	localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-function loadTasks(){
+function loadTasks() {
 	const taskstring = localStorage.getItem("tasks");
 	return taskstring ? JSON.parse(taskstring) : [];
 }
 
-function editTask(li: HTMLLIElement,label: HTMLLabelElement, name: string) {
+function editTask(li: HTMLLIElement, label: HTMLLabelElement, name: string) {
 	console.log("i am here so");
 	input.value = '';
 	input.focus();
 	input.placeholder = "Enter the name the task should have";
 	submit.innerHTML = "change";
 	const val = input.value;
-	if(label){
+	if (label) {
 		removeTask(li, name);
-		label.innerHTML= val;
+		label.innerHTML = val;
 		editTaskName(val, name);
 	}
 	else {
